@@ -8,9 +8,12 @@ declare global {
   }
 }
 
+// Track initialized pixels to prevent multiple initializations
+const initializedPixels = new Set<string>();
+
 // Initialize Facebook Pixel
 export const initPixel = () => {
-  if (!FB_PIXEL_ID) return;
+  if (!FB_PIXEL_ID || initializedPixels.has(FB_PIXEL_ID)) return;
 
   // Initialize pixel code
   !(function (f: any, b, e, v: any, n, t, s) {
@@ -36,12 +39,25 @@ export const initPixel = () => {
   );
 
   fbq("init", FB_PIXEL_ID);
+  initializedPixels.add(FB_PIXEL_ID);
+};
+
+// Track fired events to prevent duplicates
+const firedEvents = new Set<string>();
+
+// Generate unique event key
+const getEventKey = (eventName: string, params?: object) => {
+  return `${eventName}:${JSON.stringify(params || {})}`;
 };
 
 // Track page views
 export const pageView = () => {
   if (!FB_PIXEL_ID) return;
+  const eventKey = getEventKey("PageView");
+  if (firedEvents.has(eventKey)) return;
+
   window.fbq("track", "PageView");
+  firedEvents.add(eventKey);
 };
 
 // Track when products are viewed
@@ -51,13 +67,18 @@ export const viewProduct = (product: {
   price: number;
 }) => {
   if (!FB_PIXEL_ID) return;
-  window.fbq("track", "ViewContent", {
+  const params = {
     content_ids: [product.id],
     content_name: product.name,
     content_type: "product",
-    value: product.price,
+    value: Number(product.price.toFixed(2)),
     currency: "USD",
-  });
+  };
+  const eventKey = getEventKey("ViewContent", params);
+  if (firedEvents.has(eventKey)) return;
+
+  window.fbq("track", "ViewContent", params);
+  firedEvents.add(eventKey);
 };
 
 // Track when products are added to cart
@@ -68,11 +89,11 @@ export const addToCart = (product: {
   quantity: number;
 }) => {
   if (!FB_PIXEL_ID) return;
-  window.fbq("track", "AddToCart", {
+  const params = {
     content_ids: [product.id],
     content_name: product.name,
     content_type: "product",
-    value: product.price * product.quantity,
+    value: Number((product.price * product.quantity).toFixed(2)),
     currency: "USD",
     contents: [
       {
@@ -80,7 +101,12 @@ export const addToCart = (product: {
         quantity: product.quantity,
       },
     ],
-  });
+  };
+  const eventKey = getEventKey("AddToCart", params);
+  if (firedEvents.has(eventKey)) return;
+
+  window.fbq("track", "AddToCart", params);
+  firedEvents.add(eventKey);
 };
 
 // Track when purchase is completed
@@ -89,13 +115,18 @@ export const completePurchase = (orderDetails: {
   items: Array<{ id: string; quantity: number }>;
 }) => {
   if (!FB_PIXEL_ID) return;
-  window.fbq("track", "Purchase", {
-    value: orderDetails.total,
+  const params = {
+    value: Number(orderDetails.total.toFixed(2)),
     currency: "USD",
     contents: orderDetails.items.map((item) => ({
       id: item.id,
       quantity: item.quantity,
     })),
     content_type: "product",
-  });
+  };
+  const eventKey = getEventKey("Purchase", params);
+  if (firedEvents.has(eventKey)) return;
+
+  window.fbq("track", "Purchase", params);
+  firedEvents.add(eventKey);
 };
