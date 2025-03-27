@@ -3,6 +3,7 @@
 import { useAppDispatch } from "@/store/hooks";
 import { clearCart } from "@/store/slices/cartSlice";
 import { RootState } from "@/store/store";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -76,6 +77,21 @@ export default function CheckoutPage() {
 
       // Simulate API call for order creation and payment processing
       await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Generate a temporary password for guest account
+      const tempPassword = Math.random().toString(36).slice(-8);
+
+      // Create account in the background if user is not logged in
+      try {
+        await signIn("credentials", {
+          email: shippingInfo.email,
+          password: tempPassword,
+          redirect: false,
+        });
+      } catch (error) {
+        // Silently handle account creation errors
+        console.error("Background account creation failed:", error);
+      }
 
       // Track purchase completion
       completePurchase({

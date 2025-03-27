@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import Script from "next/script";
 import { useEffect } from "react";
 import { FB_PIXEL_ID, initPixel, pageView } from "../utils/metaPixel";
 
@@ -28,6 +27,5 @@ export default function MetaPixel() {
         alt=""
       />
     </noscript>
-  );
   );
 }
