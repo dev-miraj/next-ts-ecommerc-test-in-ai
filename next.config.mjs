@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const config = {
+const nextConfig = {
   output: "standalone",
   images: {
     domains: [],
@@ -18,4 +18,4 @@ const config = {
   },
 };
 
-export default config;
+module.exports = nextConfig;
