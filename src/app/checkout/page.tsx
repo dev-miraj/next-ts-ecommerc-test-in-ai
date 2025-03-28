@@ -5,9 +5,10 @@ import { clearCart } from "@/store/slices/cartSlice";
 import { RootState } from "@/store/store";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
-import { completePurchase } from "../utils/metaPixel";
+import { completePurchase, initPixel } from "../utils/metaPixel";
 
 interface ShippingInfo {
   firstName: string;
@@ -34,10 +35,11 @@ export default function CheckoutPage() {
     country: "",
   });
 
-  if (items.length === 0) {
-    router.push("/cart");
-    return null;
-  }
+  useEffect(() => {
+    if (items.length === 0) {
+      router.push("/cart");
+    }
+  }, [items.length, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,6 +68,11 @@ export default function CheckoutPage() {
       }
     });
   };
+
+  useEffect(() => {
+    // Initialize Meta Pixel on component mount
+    initPixel();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +107,18 @@ export default function CheckoutPage() {
           id: item.id,
           quantity: item.quantity,
         })),
+      });
+
+      // Show success toast in Bengali
+      toast.success("আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে", {
+        duration: 5000,
+        position: "top-center",
+        style: {
+          background: "#10B981",
+          color: "#fff",
+          fontSize: "16px",
+          padding: "16px",
+        },
       });
 
       // Clear cart and redirect to success page

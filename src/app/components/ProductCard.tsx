@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { viewProduct } from "../utils/metaPixel";
+import { addToCart, viewProduct } from "../utils/metaPixel";
 
 interface ProductCardProps {
   id: string;

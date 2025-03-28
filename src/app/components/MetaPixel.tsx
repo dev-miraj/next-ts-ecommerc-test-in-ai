@@ -9,10 +9,35 @@ export default function MetaPixel() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Initialize pixel only once
-    initPixel();
-    // Track page views
-    pageView();
+    let checkFbq: NodeJS.Timer;
+
+    try {
+      // Initialize pixel only once
+      initPixel();
+
+      // Wait for script to load before tracking page views
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds maximum wait
+
+      checkFbq = setInterval(() => {
+        attempts++;
+        if (window.fbq) {
+          try {
+            pageView();
+          } catch (error) {
+            console.error("Error tracking page view:", error);
+          }
+          clearInterval(checkFbq);
+        } else if (attempts >= maxAttempts) {
+          console.error("Facebook Pixel failed to load after 5 seconds");
+          clearInterval(checkFbq);
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Error initializing Meta Pixel:", error);
+    }
+
+    return () => clearInterval(checkFbq);
   }, [pathname, searchParams]);
 
   if (!FB_PIXEL_ID) return null;

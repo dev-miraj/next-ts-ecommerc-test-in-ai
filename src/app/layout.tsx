@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import MetaPixel from "./components/MetaPixel";
 import Navigation from "./components/Navigation";
+import ToastProvider from "./components/ToastProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default function RootLayout({
           <Navigation />
           {children}
           <MetaPixel />
+          <ToastProvider />
         </ReduxProvider>
       </body>
     </html>
