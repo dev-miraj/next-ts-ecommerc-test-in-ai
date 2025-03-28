@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
-import { completePurchase } from "@/app/utils/metaPixel";
+import { completePurchase, initPixel } from "@/app/utils/metaPixel";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearCart } from "@/store/slices/cartSlice";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { toast } from "react-hot-toast";
 
 export default function OrderSuccessPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function OrderSuccessPage() {
   useEffect(() => {
     // Initialize Meta Pixel and track purchase event
     initPixel();
-    
+
     // Show success toast
     toast.success("আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে", {
       duration: 5000,
@@ -62,11 +62,10 @@ export default function OrderSuccessPage() {
             />
           </svg>
         </div>
-        <h2 className="text-3xl font-bold text-gray-900">
-          অর্ডার সফল হয়েছে!
-        </h2>
+        <h2 className="text-3xl font-bold text-gray-900">অর্ডার সফল হয়েছে!</h2>
         <p className="mt-2 text-sm text-gray-600">
-          আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।
+          আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে। আমরা শীঘ্রই আপনার সাথে যোগাযোগ
+          করব।
         </p>
         <button
           onClick={() => router.push("/products")}
@@ -77,3 +76,4 @@ export default function OrderSuccessPage() {
       </div>
     </div>
   );
+}
